@@ -6,3 +6,4 @@ DEFINE('DB_NAME', 'commerce_db');
 DEFINE('DB_USER', 'root');
 DEFINE('DB_HOST', 'localhost');
 DEFINE('DB_PASSWORD', '');
+?>

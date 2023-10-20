@@ -1,62 +1,37 @@
-<?php  
-require_once('includes/conn.php');  
-
-// $categoryName='';
-// $msg= '';
-// $error= '';
-
-// $current_user_id = $_SESSION['user_id'];
-// $server_host = $_SERVER['HTTP_HOST'];
-// ?>
-
 <?php
-// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-//     $productName = $_POST['product_name'];
-//     $categoryName = $_POST['category_name'];
-//     $productPrice = $_POST['product_price'];
-//     $stockQuantity = $_POST['stock_quantity'];
-//     $productDescription = $_POST['product_description'];
-//     $productImage = $_POST['product_image'];
-//     $timestamp = $_POST['timestamp'];
 
+// Assuming you have a connection to your database
+// $servername = "localhost";
+// $username = "root"; // Replace with your database username
+// $password = ""; // Replace with your database password
+// $dbname = "commerce_db"; // Replace with your database name
 
-//     // Handle the product image upload (move to a folder, rename, etc.)
-//     if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
-//         $targetDir = 'uploads/product_image';
-//         $targetFile = $targetDir . basename($_FILES['product_image']['name']);
-//         if (move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile)) {
-//             // Image uploaded successfully, continue with database insertion
-//             // You can save the $targetFile path in your database for later retrieval
-//         } else {
-//             // Handle image upload error
-//         }
-//     }
+// $conn = new mysqli($servername, $username, $password, $dbname);
 
-//     // Perform database insertion for the product details (e.g., product name, description, price, and image path)
-
-//     // Redirect to a success page or handle errors accordingly
-// }
-?>
-
-
-<?php
-// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-//     $categoryName = $_POST['category_name'];
+// // Check connection
+// if ($conn->connect_error) {
+//     die("Connection failed: " . $conn->connect_error);
 // }
 
-// if ( 
-//     $sql = "INSERT INTO category_tb (category_name) VALUES (?)";
-//     $stmt = mysqli_prepare($my_conn, $sql);
-//     mysqli_stmt_bind_param($stmt, "s", $categoryName);
-//     mysqli_stmt_execute($stmt);
-//     $n_row2 = mysqli_stmt_affected_rows($stmt);
-//     if ($n_row2 > 0) {
-//         $msg .= 'Category Name saved successfully';
+// // Assuming you have a form where the user inputs the category name
+// if ($_SERVER["REQUEST_METHOD"] == "POST") {
+//     $category_name = $_POST["category_name"];
+
+
+//     // Validate input to prevent SQL injection (you should use prepared statements in production)
+//     $category_name = mysqli_real_escape_string($conn, $category_name);
+
+//     // Insert the category into the database
+//     $sql = "INSERT INTO category_tb (category_name) VALUES ('$category_name')";
+
+//     if ($conn->query($sql) === TRUE) {
+//         echo "Category added successfully";
 //     } else {
-//         $error .= 'Something went wrong, please try again!';
-    
-// } 
-// )
+//         echo "Error: " . $sql . "<br>" . $conn->error;
+//     }
+// }
+
+// $conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -64,77 +39,77 @@ require_once('includes/conn.php');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Page</title>
-    <link rel="stylesheet" href="admin_board.css">
-    <!-- <link rel="stylesheet" href="../dist/css/bootstrap.min.css"> -->
+    <title>Add Category</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
+<style>
+    body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+form {
+    margin-top: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+</style>
 <body>
 
-<?php require_once('nav.php');?>  
-
-    <div class="admin-container">
-        <h1>Admin Page - Add Product</h1>
-        <div id="error-msg" class="error-message"></div>
-        <form id="product-form">
-            <div class="form-group">
-                <label for="product_name">Product Name:</label>
-                <input type="text" id="product_name" name="product_name" required>
-            </div>
-            <div class="form-group">
-                <label for="product_name">Category Name:</label>
-                <input type="text" id="category_name" name="category_name" required>
-            </div>
-            <div class="form-group">
-                <label for="product_price">Product Price:</label>
-                <input type="number" id="product_price" name="product_price" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label for="product_price">Stock Quantity:</label>
-                <input type="number" id="stock_quantity" name="stock_quantity" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label for="product_description">Product Description:</label>
-                <textarea id="product_description" name="product_description" required></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="product_image">Product Image:</label>
-                <input type="file" id="product_image" name="product_image" accept="image/*" required>
-            </div>
-            <button type="submit">Add Product</button>
-        </form>
-    </div>
-    
 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-<div class="admin-container">
-        <h1>Admin Page - Add Category</h1>
-        <div id="error-msg" class="error-message"></div>
-        <form id="product-form">
-        <div class="form-group">
-                <label for="product_name">Category Name:</label>
-                <input type="text" id="category_name" name="category_name" required>
-        </div>
-        <button type="submit">Add Category</button>
+    <div class="container">
+        <h1>Add Category</h1>
+        <form action="" method="post">
+            <label for="category_name">Category Name:</label>
+            <input type="text" id="category_name" name="category_name" required>
+            <input type="submit" value="Add Category">
         </form>
     </div>
 </body>
 </html>
-   
-
-    <!-- <script src="admin_board.js"></script> -->
-    <!-- <script src="../dist/js/bootstrap.bundle.js"></script> -->
 
 
-</body>
-</html>
+

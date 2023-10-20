@@ -1,4 +1,4 @@
-<?php  
+<?php   $msg='';
 require_once('includes/conn.php');   
 
 $user_id = $_SESSION['user_id'];
@@ -286,3 +286,6 @@ if ($url_user_id==0) {
        <script src="../dist/jquery/jquery-3.7.0.js"></script>
     </body>
 </html>
+
+
+

@@ -6,103 +6,113 @@ $server_host = $_SERVER['HTTP_HOST'];
 $dummy_img_url = '/assets/img/dummy_user.webp';
 ?>
 
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="../dist/css/bootstrap.min.css">
-</head>
-<body>
-    
-<div class="card-group">
-  <div class="card">
-    <img src="..." class="card-img-top" alt="...">
-    <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-    </div>
-    <div class="card-footer">
-      <small class="text-muted">Last updated 3 mins ago</small>
-    </div>
-  </div>
-  <div class="card">
-    <img src="..." class="card-img-top" alt="...">
-    <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-    </div>
-    <div class="card-footer">
-      <small class="text-muted">Last updated 3 mins ago</small>
-    </div>
-  </div>
-  <div class="card">
-    <img src="..." class="card-img-top" alt="...">
-    <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
-    </div>
-    <div class="card-footer">
-      <small class="text-muted">Last updated 3 mins ago</small>
-    </div>
-  </div>
-</div>
+<?php
+// Step 1: Establish a database connection (Replace with your actual credentials)
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "commerce_db";
 
-</body>
-</html> -->
+$conn = new mysqli($servername, $username, $password, $database);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../dist/css/bootstrap.min.css">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="../dist/css/bootstrap.min.css">
 </head>
+
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body{
+        width: 100%;
+    }
+
+/* Style for the category container */
+.category-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for individual categories */
+.category {
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for category names */
+.category-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Optional: Add hover effect for categories */
+.category:hover {
+    background-color: #f0f0f0;
+}
+.cat {
+  padding-left: 10px;
+}
+
+
+</style>
+
 <body>
- 
-<?php require_once('nav.php');?>  <br> <br>
+
+<?php require_once('nav.php'); ?>
+
+<main class="p-0 m-0 row">
+
+            <div class="cat col-2 d-inline-block">
+            <h1>Categories</h1>
+
+                <?php // Step 2: Fetch Categories
+            $sql = "SELECT * FROM category_tb";
+            $result = $conn->query($sql);
+
+            // Step 3: Display Categories
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    echo "<p>{$row['category_name']}</p>";
+                } 
+            } else {
+                echo "No categories found.";
+            }
+
+            // Step 4: Close the database connection
+            $conn->close(); ?>
+            </div>
 
 
+<section class="col-10">
+            <h1>Products</h1>
+        <div class="row">
+            <?php include 'fetch_product.php'; ?>
+        </div>
+        </section>
 
+</main>
 
-<!-- <div class="row"> -->
-<div class="col-2">
-  <!-- <ul> -->
-
-<ol><i class="fa-solid fa-mobile"></i><a href="#">Phones & Tablets</a></ol>
-
-<!-- <ol><a href="products.php">Products</a></ol> -->
-
-<ol><i class="fa-solid fa-shirt"></i>Fashion</ol>
-<!-- 
-<ol><i class="fa-solid fa-computer"></i>Computing</ol>
-
-<ol><i class="fa-solid fa-tv"></i>Electronics</ol>
-
-<ol><i class="fa-solid fa-gamepad"></i>Gaming</ol>
-
-<ol><i class="fa-solid fa-car"></i>Automobile</ol>
-
-<ol><i class="fa-solid fa-dumbbell"></i>Sporting Goods</ol>
-
-<ol><i class="fa-solid fa-apple-whole"></i>Supermarket</ol>
-
-<ol><i class="fa-solid fa-notes-medical"></i>Healthy & Beauty</ol>
-
-<ol><i class="fa-solid fa-house"></i>Home & Office</ol>
-
-<ol><i class="fa-solid fa-baby"></i>Baby Products</ol>
-
-<ol><i class="fa-solid fa-spinner"></i>Other categories</ol>
-
-  -->
-<!-- </ul> -->
-</div>
-<!-- </div> -->
 
 
 </body>
