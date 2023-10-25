@@ -15,7 +15,18 @@ if(isset($_SESSION['user_id'])) {
 }
 
 if ( isset( $_POST['remove_cart'] ) ) {
+
+    // print_r($_POST);
     $cart_id = $_POST['item_id'];
+    $dqr = "DELETE from cart_tb WHERE product_id = '$cart_id'";
+    $rdq = mysqli_query($my_conn , $dqr);
+    $row0 = mysqli_affected_rows($my_conn);
+    if ( $row0 > 0 ) {
+        header( 'location: cart.php' );
+    } else {
+        echo 'Something went wrong';
+    }
+
 }
 ?>
 
@@ -97,13 +108,12 @@ if ( isset( $_POST['remove_cart'] ) ) {
                             $total += $rs['product_price'];
                             //  echo $result['product)_id'];
                         echo " <tr>
-                                   <td><img src=".$rs['product_image']." style='height: 50px;'></td>
                                    <td>".$rs['product_name']."</td>
                                    <td>".naira. number_format($rs['product_price']) ."</td>
                                    <td>" .$qty."</td>
                                    <td>  <form method='post' action = ''>
-                                  <input type='hidden' name='item_id' value='{$item['id']}'>
-                                  <button type='submit' value='remove_cart' class='btn btn-danger btn-sm'>Remove</button>
+                                  <input type='hidden' name='item_id' value='{$rs['id']}'>
+                                  <button type='submit' name='remove_cart' class='btn btn-danger btn-sm'>Remove</button>
                                  </form></td>
                                   
                             </tr> ";
@@ -117,7 +127,7 @@ if ( isset( $_POST['remove_cart'] ) ) {
             </tbody>
         </table>
         <div class="text-right">
-            <h4>Subtotal: ₦<?= $total ?></h4>
+            <h4>Grandtotal: ₦<?= number_format($total) ?></h4>
             <a href="#" class="btn btn-primary">Proceed to Checkout</a>
         </div>
         <?php

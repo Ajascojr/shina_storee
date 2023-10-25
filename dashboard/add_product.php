@@ -39,8 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $targetDir = "uploads/product_image/"; // Create an 'uploads' directory in your project
 
     // Generate a unique filename for uploaded image
-    $targetFile = uniqid() . basename($_FILES['product_image']['name']);
+    // $targetFile = uniqid() . basename($_FILES['product_image']['name']);
     // $targetFile = $targetDir . uniqid() . basename($_FILES['product_image']['name']);
+    $targetFile = $targetDir . uniqid() . basename($_FILES['product_image']['name']);
     $uploadOk = 1;
     $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
@@ -84,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssddiss", $product_name, $category_name, $product_price, $former_price, $product_discount, $stock_quantity, $product_description, $targetFile);
+            $stmt->bind_param("ssddisss", $product_name, $category_name, $product_price, $former_price, $product_discount, $stock_quantity, $product_description, $targetFile);
 
             if ($stmt->execute()) {
                 echo '<div class="alert alert-success">' . "Product added successfully!" . '</div>';

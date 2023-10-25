@@ -47,3 +47,22 @@ button {
     color: red;
     margin-bottom: 10px;
 }
+
+
+button[name="btn_login"] {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    width: 100%; /* Make the button full width */
+    max-width: 200px; /* Set a maximum width for the button */
+    margin: 10px auto; /* Center the button with some space at the top */
+}
+
+button[name="btn_login"]:hover {
+    background-color: #0056b3;
+}

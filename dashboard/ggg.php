@@ -1,38 +1,73 @@
+<script>
+    function updateGrandTotal() {
+        let totalElements = document.querySelectorAll('.productTotal');
+        let grandTotalElement = document.getElementById('grandTotal');
+
+        let grandTotal = 0;
+        totalElements.forEach(element => {
+            grandTotal += parseFloat(element.innerText);
+        });
+
+        grandTotalElement.innerText = grandTotal.toFixed(2);
+    }
+
+    function updateProductTotal(price, quantity, productId) {
+        let productTotalElement = document.getElementById(`productTotal_${productId}`);
+        let productTotal = price * quantity;
+        productTotalElement.innerText = productTotal.toFixed(2);
+        updateGrandTotal();
+    }
+
+    function updateQuantity(action, productId) {
+        let quantityElement = document.getElementById(`quantity_${productId}`);
+        let currentQuantity = parseInt(quantityElement.value);
+        if (action === 'plus') {
+            quantityElement.value = currentQuantity + 1;
+        } else if (action === 'minus' && currentQuantity > 1) {
+            quantityElement.value = currentQuantity - 1;
+        }
+        updateProductTotal(
+            parseFloat(quantityElement.dataset.price),
+            parseInt(quantityElement.value),
+            productId
+        );
+    }
+</script>
+
 <?php
-// session_start();
+require_once('includes/conn.php');   
 
-// Assuming you have a connection to your database
-$servername = "localhost";
-$username = "root"; // Replace with your database username
-$password = ""; // Replace with your database password
-$dbname = "commerce_db"; // Replace with your database name
+session_start();
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if(isset($_SESSION['user_id'])) {
+    $active_user_id = $_SESSION['user_id'];
+} else {
+    // Handle case where user is not logged in
+    // You might want to redirect them to a login page or handle it in some way.
 }
 
-// Check if a product has been added to the cart
-if(isset($_GET['add_to_cart'])) {
-    $product_id = $_GET['add_to_cart'];
-    $_SESSION['cart'][] = $product_id; // Add the product to the cart session
+if ( isset( $_POST['remove_cart'] ) ) {
+    $cart_id = $_POST['item_id'];
+    $dqr = "DELETE from cart_tb WHERE product_id = '$cart_id'";
+    $rdq = mysqli_query($my_conn , $dqr);
+    $row0 = mysqli_affected_rows($my_conn);
+    if ( $row0 > 0 ) {
+        header( 'location: cart.php' );
+        exit();
+    } else {
+        echo 'Something went wrong';
+    }
 }
 
-// Check if a product has been removed from the cart
-if(isset($_GET['remove_from_cart'])) {
-    $product_id = $_GET['remove_from_cart'];
-    // Remove the product from the cart session
-    $_SESSION['cart'] = array_diff($_SESSION['cart'], array($product_id));
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_quantity'])) {
+    $cart_id = $_POST['item_id'];
+    $new_quantity = $_POST['new_quantity'];
+
+    $updateQuery = "UPDATE cart_tb SET quantity = '$new_quantity' WHERE product_id = '$cart_id'";
+    mysqli_query($my_conn, $updateQuery);
+    header('Location: cart.php');
+    exit();
 }
-
-// Get the list of products from the database
-$sql = "SELECT * FROM product_tb";
-$result = $conn->query($sql);
-
-// Close the database connection
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -42,105 +77,105 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-    <!-- <link rel="stylesheet" href="styles.css"> Add your CSS file if needed -->
 </head>
 
 <style>
-    /* body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+    /* .quantity-cell {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px; 
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    text-align: center;
-}
+.quantity-cell button {
+    flex-shrink: 0;
+}  */
 
-.product-list, .cart {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    grid-gap: 20px;
-}
+ .small-input {
+    width: 50px;  /*Adjust the width as needed*/
+} 
 
-.product, .cart-item {
-    background-color: #fff;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-}
 
-.product h2, .cart-item h2 {
-    font-size: 1.2em;
-    margin: 10px 0;
-}
+.quantity-cell {
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+    
+} 
 
-.product p, .cart-item p {
-    font-size: 1em;
-    margin: 10px 0;
-}
-
-form {
-    display: inline-block;
-    margin-top: 10px;
-}
-
-input[type="submit"] {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-input[type="submit"]:hover {
-    background-color: #0056b3;
-} */
-
+/* Adjust the gap as needed */
 </style>
 
 <body>
-    <?php require_once('nav.php'); ?>
+    <div class="container mt-5">
+        <a href="homepage.php">Home</a>
+        <h1>Shopping Cart</h1>
+        <form method="post">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Product Name</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Total</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                        $qq = "SELECT * FROM cart_tb WHERE user_id = '$active_user_id'";
+                        $rr = mysqli_query($my_conn , $qq);
+                        $total = 0;
+                        if (mysqli_num_rows($rr) > 0) {
+                            while ($result = mysqli_fetch_assoc($rr)) {
+                                $qty = $result['quantity'];
+                                $dd = $result['product_id'];
+                                $sq = "SELECT * FROM product_tb WHERE id = '$dd'";
+                                $sq = mysqli_query($my_conn , $sq);
+                                while ($rs = mysqli_fetch_assoc($sq)) {
+                                    $total += $rs['product_price'];
+                                    echo " <tr>
+                                            <td>{$rs['product_name']}</td>
+                                            <td>&#x20A6;" . number_format($rs['product_price'], 2) . "</td>
+                                            <td class='quantity-cell'>
+                                                <button type='button' class='btn btn-secondary' onclick='updateQuantity(\"minus\", {$rs['id']})'>-</button>
+                                                <input type='number' name='quantity' class='form-control small-input' id='quantity_{$rs['id']}' 
+                                                    data-price='{$rs['product_price']}' value='$qty' 
+                                                    onchange='updateProductTotal({$rs['product_price']}, this.value, {$rs['id']})'>
+                                                <button type='button' class='btn btn-secondary' onclick='updateQuantity(\"plus\", {$rs['id']})'>+</button>
+                                            </td>
 
-    <div class="container">
-        <h1>Products</h1>
 
-        <?php
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                $product_id = $row['id'];
-                $product_name = $row['product_name'];
-                $product_price = $row['product_price'];
+ 
 
-                // Check if the product is already in the cart
-                $in_cart = in_array($product_id, $_SESSION['cart'] ?? []);
 
-                echo '<div class="product">';
-                echo '<h3>' . $product_name . '</h3>';
-                echo '<p>Price: $' . $product_price . '</p>';
 
-                if (!$in_cart) {
-                    echo '<a href="?add_to_cart=' . $product_id . '">Add to Cart</a>';
-                } else {
-                    echo '<a href="?remove_from_cart=' . $product_id . '">Remove from Cart</a>';
-                }
-
-                echo '</div>';
-            }
-        } else {
-            echo "No products available.";
-        }
-        ?>
+                                            <td><span id='productTotal_{$rs['id']}' class='productTotal'>{$rs['product_price']}</span></td>
+                                            <td>
+                                                <form method='post' action=''>
+                                                    <input type='hidden' name='item_id' value='{$rs['id']}'>
+                                                    <button type='submit' name='remove_cart' class='btn btn-danger btn-sm'>Remove</button>
+                                                </form>
+                                            </td>
+                                        </tr>";
+                                }
+                            }
+                        } else {
+                            echo '<tr><td colspan="5"><h4>Your cart is empty!</h4></td></tr>';
+                        }
+                    ?>
+                </tbody>
+            </table>
+            <div class="text-right">
+                <h4>Grand Total: &#x20A6;<span id="grandTotal"><?= number_format($total, 2) ?></span></h4>
+                <button type="submit" name="update_quantity" class="btn btn-primary">Update Quantities</button>
+                <a href="#" class="btn btn-primary">Proceed to Checkout</a>
+            </div>
+        </form>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-</html
+</html>

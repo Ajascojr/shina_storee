@@ -69,6 +69,7 @@ if ($rw > 0) {
 
             <!-- <h3 class="d-inline-block text-danger text-sm p-1" style="font-weight: 300; font-size: 17px; background-color:#ecc0ff;"> -->
             <!-- </h3> -->
+            
             <div class="d-inline-block" style="position: absolute; background-color: red; color: white; padding: 5px 10px; font-size: 16px; border-radius: 5px;">
             <?php echo '-'.$pp['product_discount'].'%' ?>
 

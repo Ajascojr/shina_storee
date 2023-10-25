@@ -6,6 +6,9 @@ session_start();
 
 ?>
     <link rel="stylesheet" href="nav.css">
+    <link rel="stylesheet" href="../fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="fontawesome/js/logo.js">
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
 
 <!-- ... (previous HTML code) ... -->
     <nav class="navbar mx-0 w-100">
@@ -14,7 +17,7 @@ session_start();
             <ul class="nav-links">
                 <li><a href="homepage.php">Home</a></li>
                 <li><a href="products.php">Products</a></li>
-                <li><a href="cart.php">Cart</a></li>
+                <li><a href="cart.php"><i class="fas fa-shopping-cart"></i>Cart</a></li>
                 <li><a href="profile.php">Profile</a></li>
                 <li><a href="checkout.php">Checkout</a></li>
                 <?php 
@@ -34,5 +37,3 @@ session_start();
             </div>
         </div>
     </nav>
-
-

@@ -87,22 +87,47 @@ if ($conn->connect_error) {
             <h1>Categories</h1>
 
                 <?php // Step 2: Fetch Categories
-            $sql = "SELECT * FROM category_tb";
-            $result = $conn->query($sql);
+            // $sql = "SELECT * FROM category_tb";
+            // $result = $conn->query($sql);
 
-            // Step 3: Display Categories
-            if ($result->num_rows > 0) {
-                while($row = $result->fetch_assoc()) {
-                    echo "<p>{$row['category_name']}</p>";
-                } 
-            } else {
-                echo "No categories found.";
-            }
+            // // Step 3: Display Categories
+            // if ($result->num_rows > 0) {
+            //     while($row = $result->fetch_assoc()) {
+            //         echo "<p>{$row['category_name']}</p>";
+            //     } 
+            // } else {
+            //     echo "No categories found.";
+            // }
 
-            // Step 4: Close the database connection
-            $conn->close(); ?>
+            // // Step 4: Close the database connection
+            // $conn->close(); ?>
+
+<ul class="list-group">
+                <?php
+                // Connect to your database
+                $conn = new mysqli('localhost', 'root', '', 'commerce_db');
+
+                // Check connection
+                if ($conn->connect_error) {
+                    die("Connection failed: " . $conn->connect_error);
+                }
+
+                $sql = "SELECT * FROM category_tb";
+                $result = $conn->query($sql);
+
+                if ($result->num_rows > 0) {
+                    while($row = $result->fetch_assoc()) {
+                        echo '<li class="list-group-item"><a href="?category=' . $row['id'] . '">' . $row['category_name'] . '</a></li>';
+                    }
+                }
+
+                $conn->close();
+                ?>
+            </ul>
+
             </div>
 
+    
 
 <section class="col-10">
             <h1>Products</h1>

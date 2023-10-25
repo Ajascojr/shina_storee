@@ -47,7 +47,7 @@ if ($result->num_rows > 0) {
 
           <div class="card-body">
             <h5 class="card-title text-black">'.$nn.'...</h5>
-            <h4 class="card-title text-black">₦ '.$pp.'</h4>
+            <h4 class="card-title text-black">₦'.$pp.'</h4>
             
 
           </div> </a>
