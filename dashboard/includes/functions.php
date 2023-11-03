@@ -1,4 +1,5 @@
 <?php
+require_once('conn.php');
 /**
  * This function sanitizes user inputs with
  * - mysqli_real_escape_string

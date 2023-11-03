@@ -127,7 +127,9 @@ if ($url_user_id==0) {
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.111.3">
     <title>Dashboard Template · Bootstrap v5.3</title>
-    <link rel="stylesheet" href="../dist/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="../dist/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
     <style>
         .cust { text-align: left;
           font-size: 14px; background-color: #74aaff; padding: 7px;
@@ -282,8 +284,11 @@ if ($url_user_id==0) {
 
 
 
-       <script src="../dist/js/bootstrap.bundle.js"></script>
-       <script src="../dist/jquery/jquery-3.7.0.js"></script>
+       <!-- <script src="../dist/js/bootstrap.bundle.js"></script> -->
+       <!-- <script src="../dist/jquery/jquery-3.7.0.js"></script> -->
+       <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     </body>
 </html>
 

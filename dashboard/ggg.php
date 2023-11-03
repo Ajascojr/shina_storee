@@ -1,73 +1,82 @@
-<script>
-    function updateGrandTotal() {
-        let totalElements = document.querySelectorAll('.productTotal');
-        let grandTotalElement = document.getElementById('grandTotal');
-
-        let grandTotal = 0;
-        totalElements.forEach(element => {
-            grandTotal += parseFloat(element.innerText);
-        });
-
-        grandTotalElement.innerText = grandTotal.toFixed(2);
-    }
-
-    function updateProductTotal(price, quantity, productId) {
-        let productTotalElement = document.getElementById(`productTotal_${productId}`);
-        let productTotal = price * quantity;
-        productTotalElement.innerText = productTotal.toFixed(2);
-        updateGrandTotal();
-    }
-
-    function updateQuantity(action, productId) {
-        let quantityElement = document.getElementById(`quantity_${productId}`);
-        let currentQuantity = parseInt(quantityElement.value);
-        if (action === 'plus') {
-            quantityElement.value = currentQuantity + 1;
-        } else if (action === 'minus' && currentQuantity > 1) {
-            quantityElement.value = currentQuantity - 1;
-        }
-        updateProductTotal(
-            parseFloat(quantityElement.dataset.price),
-            parseInt(quantityElement.value),
-            productId
-        );
-    }
-</script>
-
 <?php
-require_once('includes/conn.php');   
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "commerce_db";
 
-session_start();
+$conn = new mysqli($servername, $username, $password, $database);
 
-if(isset($_SESSION['user_id'])) {
-    $active_user_id = $_SESSION['user_id'];
-} else {
-    // Handle case where user is not logged in
-    // You might want to redirect them to a login page or handle it in some way.
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-if ( isset( $_POST['remove_cart'] ) ) {
-    $cart_id = $_POST['item_id'];
-    $dqr = "DELETE from cart_tb WHERE product_id = '$cart_id'";
-    $rdq = mysqli_query($my_conn , $dqr);
-    $row0 = mysqli_affected_rows($my_conn);
-    if ( $row0 > 0 ) {
-        header( 'location: cart.php' );
-        exit();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $product_name = $_POST['product_name'];
+
+    // Step 3: Upload Product Image (assuming you have an image upload input field)
+    $targetDir = "uploads/product_image/"; // Create an 'uploads' directory in your project
+
+    // Generate a unique filename for uploaded image
+    $targetFile = $targetDir . basename($_FILES['product_image']['name']);
+    $uploadOk = 1;
+    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+    // Check if image file is a actual image or fake image
+    if(isset($_POST["submit"])) {
+        $check = getimagesize($_FILES['product_image']['tmp_name']);
+        if($check !== false) {
+            $uploadOk = 1;
+        } else {
+            echo '<div class="alert alert-danger">' . "File is not an image." . '</div>';
+            $uploadOk = 0;
+        }
+    }
+
+    // Check if file already exists
+    if (file_exists($targetFile)) {
+        echo '<div class="alert alert-danger">' . "Sorry, file already exists." . '</div>';
+        $uploadOk = 0;
+    }
+
+    // Check file size
+    if ($_FILES['product_image']['size'] > 500000) {
+        echo '<div class="alert alert-danger">' . "Sorry, your file is too large." . '</div>';
+        $uploadOk = 0;
+    }
+
+    // Allow only certain file formats
+    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+        && $imageFileType != "gif" && $imageFileType != "webp") {
+        echo '<div class="alert alert-danger">' . "Sorry, only JPG, JPEG, PNG, GIF & WEBP files are allowed." . '</div>';
+        $uploadOk = 0;
+    }
+
+    if ($uploadOk == 0) {
+        echo '<div class="alert alert-danger">' . "Sorry, your file was not uploaded." . '</div>';
     } else {
-        echo 'Something went wrong';
+        // File uploaded successfully, proceed with database insertion
+
+        if (move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile)) {
+            $sql = "INSERT INTO product_tb (product_name, product_image)
+                    VALUES (?, ?)";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ss", $product_name, $targetFile);
+
+            if ($stmt->execute()) {
+                echo '<div class="alert alert-success">' . "Product added successfully!" . '</div>';
+            } else {
+                echo '<div class="alert alert-danger">' . "Error: " . $sql . "<br>" . $conn->error . '</div>';
+            }
+
+            $stmt->close();
+        } else {
+            echo '<div class="alert alert-danger">' . "Error uploading file." . '</div>';
+        }
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_quantity'])) {
-    $cart_id = $_POST['item_id'];
-    $new_quantity = $_POST['new_quantity'];
-
-    $updateQuery = "UPDATE cart_tb SET quantity = '$new_quantity' WHERE product_id = '$cart_id'";
-    mysqli_query($my_conn, $updateQuery);
-    header('Location: cart.php');
-    exit();
-}
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -75,102 +84,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_quantity'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart</title>
+    <title>Add Product</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-
-<style>
-    /* .quantity-cell {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 5px; 
-}
-
-.quantity-cell button {
-    flex-shrink: 0;
-}  */
-
- .small-input {
-    width: 50px;  /*Adjust the width as needed*/
-} 
-
-
-.quantity-cell {
-    display: flex;
-    align-items: center;
-    gap: 5px; 
-    
-} 
-
-/* Adjust the gap as needed */
-</style>
-
 <body>
     <div class="container mt-5">
-        <a href="homepage.php">Home</a>
-        <h1>Shopping Cart</h1>
-        <form method="post">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Product Name</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Quantity</th>
-                        <th scope="col">Total</th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                        $qq = "SELECT * FROM cart_tb WHERE user_id = '$active_user_id'";
-                        $rr = mysqli_query($my_conn , $qq);
-                        $total = 0;
-                        if (mysqli_num_rows($rr) > 0) {
-                            while ($result = mysqli_fetch_assoc($rr)) {
-                                $qty = $result['quantity'];
-                                $dd = $result['product_id'];
-                                $sq = "SELECT * FROM product_tb WHERE id = '$dd'";
-                                $sq = mysqli_query($my_conn , $sq);
-                                while ($rs = mysqli_fetch_assoc($sq)) {
-                                    $total += $rs['product_price'];
-                                    echo " <tr>
-                                            <td>{$rs['product_name']}</td>
-                                            <td>&#x20A6;" . number_format($rs['product_price'], 2) . "</td>
-                                            <td class='quantity-cell'>
-                                                <button type='button' class='btn btn-secondary' onclick='updateQuantity(\"minus\", {$rs['id']})'>-</button>
-                                                <input type='number' name='quantity' class='form-control small-input' id='quantity_{$rs['id']}' 
-                                                    data-price='{$rs['product_price']}' value='$qty' 
-                                                    onchange='updateProductTotal({$rs['product_price']}, this.value, {$rs['id']})'>
-                                                <button type='button' class='btn btn-secondary' onclick='updateQuantity(\"plus\", {$rs['id']})'>+</button>
-                                            </td>
-
-
- 
-
-
-
-                                            <td><span id='productTotal_{$rs['id']}' class='productTotal'>{$rs['product_price']}</span></td>
-                                            <td>
-                                                <form method='post' action=''>
-                                                    <input type='hidden' name='item_id' value='{$rs['id']}'>
-                                                    <button type='submit' name='remove_cart' class='btn btn-danger btn-sm'>Remove</button>
-                                                </form>
-                                            </td>
-                                        </tr>";
-                                }
-                            }
-                        } else {
-                            echo '<tr><td colspan="5"><h4>Your cart is empty!</h4></td></tr>';
-                        }
-                    ?>
-                </tbody>
-            </table>
-            <div class="text-right">
-                <h4>Grand Total: &#x20A6;<span id="grandTotal"><?= number_format($total, 2) ?></span></h4>
-                <button type="submit" name="update_quantity" class="btn btn-primary">Update Quantities</button>
-                <a href="#" class="btn btn-primary">Proceed to Checkout</a>
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="product_name">Product Name</label>
+                <input type="text" class="form-control" id="product_name" name="product_name" required>
             </div>
+            <div class="form-group">
+                <label for="product_image">Product Image</label>
+                <input type="file" class="form-control-file" id="product_image" name="product_image" accept="image/*" required>
+            </div>
+            <button type="submit" name="submit" class="btn btn-primary">Add Product</button>
         </form>
     </div>
 

@@ -29,6 +29,8 @@ if (isset($_POST['btn_signup'])) {
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         $n_row1 = mysqli_num_rows($result);
+        
+        // header('location:../dashboard/homepage.php');
 
         if ($n_row1 > 0) {
             $error = "This email already exists with us. Please login if you've registered before.";
@@ -57,7 +59,9 @@ if (isset($_POST['btn_signup'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
     <link rel="stylesheet" href="signup.css">
-    <link rel="stylesheet" href="../dist/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="../dist/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
 </head>
 <body>
     <form action="" method="post">
@@ -103,3 +107,9 @@ if (isset($_POST['btn_signup'])) {
     </form>
 </body>
 </html>
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

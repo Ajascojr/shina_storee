@@ -10,6 +10,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+
+
 if(isset($_POST['edit_product'])) {
     $product_id = $_POST['product_id'];
     $product_name = $_POST['product_name'];
@@ -22,7 +24,7 @@ if(isset($_POST['edit_product'])) {
     $product_image = $_POST['product_image']; // Note: This should be handled with care for security reasons.
 
     // Use prepared statements to prevent SQL injection
-    $stmt = $conn->prepare("UPDATE products SET 
+    $stmt = $conn->prepare("UPDATE product_tb SET 
                             product_name = ?, 
                             category_name = ?, 
                             product_price = ?, 
@@ -32,7 +34,7 @@ if(isset($_POST['edit_product'])) {
                             product_description = ?, 
                             product_image = ? 
                             WHERE product_id = ?");
-    $stmt->bind_param("ssdddisssi", $product_name, $category_name, $product_price, $former_price, $product_discount, $stock_quantity, $product_description, $product_image, $product_id);
+    $stmt->bind_param("ssdddisss", $product_name, $category_name, $product_price, $former_price, $product_discount, $stock_quantity, $product_description, $product_image, $product_id);
 
     if ($stmt->execute()) {
         // Product details successfully updated

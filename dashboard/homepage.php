@@ -4,6 +4,8 @@ require_once('includes/conn.php');
 $current_user_id = $_SESSION['user_id'];
 $server_host = $_SERVER['HTTP_HOST'];
 $dummy_img_url = '/assets/img/dummy_user.webp';
+
+
 ?>
 
 <?php
@@ -20,6 +22,14 @@ if ($conn->connect_error) {
 }
 
 
+
+if(isset($_SESSION['user_id'])) {
+    $active_user_id = $_SESSION['user_id'];
+} else {
+    // Redirect to the login page if user is not logged in
+    header("Location: ../user/login.php");
+    exit(); // Ensure that no further code is executed after the redirect
+}
 ?>
 
 <!DOCTYPE html>
@@ -29,6 +39,9 @@ if ($conn->connect_error) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage</title>
     <link rel="stylesheet" href="../dist/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+
+    
 </head>
 
 <style>
@@ -74,6 +87,14 @@ if ($conn->connect_error) {
   padding-left: 10px;
 }
 
+a {
+    color: black; /* Set the default color for links */
+}
+
+a:visited {
+    color: black; /* Set the color for visited links (after they have been clicked) */
+}
+
 
 </style>
 
@@ -117,9 +138,12 @@ if ($conn->connect_error) {
 
                 if ($result->num_rows > 0) {
                     while($row = $result->fetch_assoc()) {
-                        echo '<li class="list-group-item"><a href="?category=' . $row['id'] . '">' . $row['category_name'] . '</a></li>';
+                        echo '<li class="list-group-item" style="text"><a href="?category=' . $row['id'] . '">' . $row['category_name'] . '</a></li>';
                     }
+                } else {
+                    echo "No categories found.";
                 }
+                // }
 
                 $conn->close();
                 ?>

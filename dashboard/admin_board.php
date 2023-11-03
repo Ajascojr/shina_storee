@@ -20,7 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $category_name = mysqli_real_escape_string($my_conn, $category_name);
 
     // Get the current timestamp
-    $timestamp = time();
+    // $timestamp = time();
+    $timestamp = date("Y-m-d H:i:s"); // Current timestamp
+
 
     // Insert the category into the database
     $sql = "INSERT INTO category_tb (category_name, user_id, timestamp) VALUES ('$category_name', '$active_user_id', '$timestamp')";
@@ -42,7 +44,7 @@ mysqli_close($my_conn);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Category</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../dist/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="../dist/css/bootstrap.min.css"> -->
     <style>
         .container-box {
             max-width: 350px;
@@ -102,7 +104,11 @@ mysqli_close($my_conn);
                     <button type="submit" class="btn btn-primary">Add Category</button>
                 </form>
     </div>
-
+<p>This Page Lead To <a href="edit_category.php">Edit Category Page</a></p>
+<p>This Page Lead To <a href="delete_category.php">Delete Category Page</a></p>
+<p>This Page Lead To <a href="add_product.php">Add Product Page</a></p>
+<p>This Page Lead To <a href="delete_product.php">Delete Product Page</a></p>
+<p>This Page Lead To <a href="user_management.php">User Management Page</a></p>
     
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
@@ -111,83 +117,83 @@ mysqli_close($my_conn);
 </html>
 
 <?php
-require_once('includes/conn.php');
+// require_once('includes/conn.php');
 
-session_start();
+// session_start();
 
-if(isset($_SESSION['user_id'])) {
-    $active_user_id = $_SESSION['user_id'];
-} else {
-    header('location: login.php'); // Redirect to login page if user is not logged in
-}
+// if(isset($_SESSION['user_id'])) {
+//     $active_user_id = $_SESSION['user_id'];
+// } else {
+//     header('location: login.php'); // Redirect to login page if user is not logged in
+// }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $product_name = sanitize_var($my_conn, $_POST["product_name"]);
-    $category_name = sanitize_var($my_conn, $_POST["category_name"]);
-    $product_price = floatval($_POST["product_price"]);
-    $former_price = floatval($_POST["former_price"]);
-    $product_discount = floatval($_POST["product_discount"]);
-    $stock_quantity = intval($_POST["stock_quantity"]);
-    $product_description = sanitize_var($my_conn, $_POST["product_description"]);
+// if ($_SERVER["REQUEST_METHOD"] == "POST") {
+//     $product_name = sanitize_var($my_conn, $_POST["product_name"]);
+//     $category_name = sanitize_var($my_conn, $_POST["category_name"]);
+//     $product_price = floatval($_POST["product_price"]);
+//     $former_price = floatval($_POST["former_price"]);
+//     $product_discount = floatval($_POST["product_discount"]);
+//     $stock_quantity = intval($_POST["stock_quantity"]);
+//     $product_description = sanitize_var($my_conn, $_POST["product_description"]);
 
-    // Generate a unique filename for uploaded image
-    $targetDir = "uploads/product_image/";
-    $targetFile = $targetDir . uniqid() . '_' . basename($_FILES['product_image']['name']);
-    $uploadOk = 1;
-    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+//     // Generate a unique filename for uploaded image
+//     $targetDir = "uploads/product_image/";
+//     $targetFile = $targetDir . uniqid() . '_' . basename($_FILES['product_image']['name']);
+//     $uploadOk = 1;
+//     $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
-    // Check if image file is a actual image or fake image
-    $check = getimagesize($_FILES['product_image']['tmp_name']);
-    if($check === false) {
-        $error = "File is not an image.";
-        $uploadOk = 0;
-    }
+//     // Check if image file is a actual image or fake image
+//     $check = getimagesize($_FILES['product_image']['tmp_name']);
+//     if($check === false) {
+//         $error = "File is not an image.";
+//         $uploadOk = 0;
+//     }
 
-    // Check if file already exists
-    if (file_exists($targetFile)) {
-        $error = "Sorry, file already exists.";
-        $uploadOk = 0;
-    }
+//     // Check if file already exists
+//     if (file_exists($targetFile)) {
+//         $error = "Sorry, file already exists.";
+//         $uploadOk = 0;
+//     }
 
-    // Check file size
-    if ($_FILES['product_image']['size'] > 500000) {
-        $error = "Sorry, your file is too large.";
-        $uploadOk = 0;
-    }
+//     // Check file size
+//     if ($_FILES['product_image']['size'] > 500000) {
+//         $error = "Sorry, your file is too large.";
+//         $uploadOk = 0;
+//     }
 
-    // Allow only certain file formats
-    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-        && $imageFileType != "gif") {
-        $error = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-        $uploadOk = 0;
-    }
+//     // Allow only certain file formats
+//     if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+//         && $imageFileType != "gif") {
+//         $error = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+//         $uploadOk = 0;
+//     }
 
-    if ($uploadOk == 0) {
-        $error = "Sorry, your file was not uploaded.";
-    } else {
-        // File uploaded successfully, proceed with database insertion
+//     if ($uploadOk == 0) {
+//         $error = "Sorry, your file was not uploaded.";
+//     } else {
+//         // File uploaded successfully, proceed with database insertion
 
-        if (move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile)) {
-            $timestamp = time();
+//         if (move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile)) {
+//             $timestamp = time();
 
-            $sql = "INSERT INTO product_tb (user_id, product_name, category_name, product_price, former_price, product_discount, stock_quantity, product_description, product_image, timestamp)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+//             $sql = "INSERT INTO product_tb (user_id, product_name, category_name, product_price, former_price, product_discount, stock_quantity, product_description, product_image, timestamp)
+//                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            $stmt = mysqli_prepare($my_conn, $sql);
-            mysqli_stmt_bind_param($stmt, "dssdddsdsd", $active_user_id, $product_name, $category_name, $product_price, $former_price, $product_discount, $stock_quantity, $product_description, $targetFile, $timestamp);
+//             $stmt = mysqli_prepare($my_conn, $sql);
+//             mysqli_stmt_bind_param($stmt, "dssdddsdsd", $active_user_id, $product_name, $category_name, $product_price, $former_price, $product_discount, $stock_quantity, $product_description, $targetFile, $timestamp);
 
-            if (mysqli_stmt_execute($stmt)) {
-                $msg = "Product added successfully!";
-            } else {
-                $error = "Error: " . $sql . "<br>" . mysqli_error($my_conn);
-            }
+//             if (mysqli_stmt_execute($stmt)) {
+//                 $msg = "Product added successfully!";
+//             } else {
+//                 $error = "Error: " . $sql . "<br>" . mysqli_error($my_conn);
+//             }
 
-            mysqli_stmt_close($stmt);
-        } else {
-            $error = "Error uploading file.";
-        }
-    }
-}
+//             mysqli_stmt_close($stmt);
+//         } else {
+//             $error = "Error uploading file.";
+//         }
+//     }
+// }
 
 // mysqli_close($my_conn);
 ?>

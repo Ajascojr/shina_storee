@@ -27,6 +27,7 @@ if ($conn->connect_error) {
 
 // Step 2: Handle Form Submission (Assuming you're using a form to submit product details)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user_id = $active_user_id;
     $product_name = $_POST['product_name'];
     $category_name = $_POST['category_name'];
     $product_price = $_POST['product_price'];
@@ -34,58 +35,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $product_discount = $_POST['product_discount'];
     $stock_quantity = $_POST['stock_quantity'];
     $product_description = $_POST['product_description'];
+    $timestamp = date("Y-m-d H:i:s"); // Current timestamp
 
-    // Step 3: Upload Product Image (assuming you have an image upload input field)
-    $targetDir = "uploads/product_image/"; // Create an 'uploads' directory in your project
+      // First, insert the category (if it doesn't exist yet)
+      $category_id = null;
 
-    // Generate a unique filename for uploaded image
-    // $targetFile = uniqid() . basename($_FILES['product_image']['name']);
-    // $targetFile = $targetDir . uniqid() . basename($_FILES['product_image']['name']);
-    $targetFile = $targetDir . uniqid() . basename($_FILES['product_image']['name']);
-    $uploadOk = 1;
-    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+      $category_result = $conn->query("SELECT id FROM category_tb WHERE category_name='$category_name'");
+  
+      if ($category_result->num_rows > 0) {
+          $row = $category_result->fetch_assoc();
+          $category_id = $row["id"];
+      } else {
+          $conn->query("INSERT INTO category_tb (category_name) VALUES ('$category_name')");
+          $category_id = $conn->insert_id;
+      }
 
-    // Check if image file is a actual image or fake image
-    if(isset($_POST["submit"])) {
-        $check = getimagesize($_FILES['product_image']['tmp_name']);
-        if($check !== false) {
-            $uploadOk = 1;
-        } else {
-            echo '<div class="alert alert-danger">' . "File is not an image." . '</div>';
-            $uploadOk = 0;
-        }
-    }
+// Step 3: Upload Product Image (assuming you have an image upload input field)
+$targetDir = "uploads/product_image/"; // Create an 'uploads' directory in your project
 
-    // Check if file already exists
-    if (file_exists($targetFile)) {
-        echo '<div class="alert alert-danger">' . "Sorry, file already exists." . '</div>';
-        $uploadOk = 0;
-    }
+// Generate a unique filename for uploaded image
+$targetFile = $targetDir . basename($_FILES['product_image']['name']);
+$uploadOk = 1;
+$imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
-    // Check file size
-    if ($_FILES['product_image']['size'] > 500000) {
-        echo '<div class="alert alert-danger">' . "Sorry, your file is too large." . '</div>';
-        $uploadOk = 0;
-    }
-
-    // Allow only certain file formats
-    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-        && $imageFileType != "gif") {
-        echo '<div class="alert alert-danger">' . "Sorry, only JPG, JPEG, PNG & GIF files are allowed." . '</div>';
-        $uploadOk = 0;
-    }
-
-    if ($uploadOk == 0) {
-        echo '<div class="alert alert-danger">' . "Sorry, your file was not uploaded." . '</div>';
+// Check if image file is a actual image or fake image
+if(isset($_POST["submit"])) {
+    $check = getimagesize($_FILES['product_image']['tmp_name']);
+    if($check !== false) {
+        $uploadOk = 1;
     } else {
-        // File uploaded successfully, proceed with database insertion
+        echo '<div class="alert alert-danger">' . "File is not an image." . '</div>';
+        $uploadOk = 0;
+    }
+}
+
+// Check if file already exists
+if (file_exists($targetFile)) {
+    echo '<div class="alert alert-danger">' . "Sorry, file already exists." . '</div>';
+    $uploadOk = 0;
+}
+
+// Check file size
+if ($_FILES['product_image']['size'] > 500000) {
+    echo '<div class="alert alert-danger">' . "Sorry, your file is too large." . '</div>';
+    $uploadOk = 0;
+}
+
+// Allow only certain file formats
+if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+    && $imageFileType != "gif" && $imageFileType != "webp") {
+    echo '<div class="alert alert-danger">' . "Sorry, only JPG, JPEG, PNG, GIF & WEBP files are allowed." . '</div>';
+    $uploadOk = 0;
+}
+
+if ($uploadOk == 0) {
+    echo '<div class="alert alert-danger">' . "Sorry, your file was not uploaded." . '</div>';
+} else {        // File uploaded successfully, proceed with database insertion
 
         if (move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile)) {
-            $sql = "INSERT INTO product_tb (product_name, category_name, product_price, former_price, product_discount, stock_quantity, product_description, product_image)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO product_tb (user_id, category_id, product_name, category_name, product_price, former_price, product_discount, stock_quantity, product_description, product_image, timestamp)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
 
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssddisss", $product_name, $category_name, $product_price, $former_price, $product_discount, $stock_quantity, $product_description, $targetFile);
+            $stmt->bind_param("isssddissss",$user_id, $category_id, $product_name, $category_name, $product_price, $former_price, $product_discount, $stock_quantity, $product_description, $targetFile, $timestamp);
 
             if ($stmt->execute()) {
                 echo '<div class="alert alert-success">' . "Product added successfully!" . '</div>';
@@ -121,14 +134,14 @@ $conn->close();
     background-color: #f8f8f8;
 }
 
-.container {
+/* .container {
     max-width: 500px;
     margin: 100px auto;
     background-color: #fff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+} */
 
 label, input, textarea {
     display: block;
@@ -163,16 +176,47 @@ input[type="submit"]:hover {
 </style>
 
 <body>
+<?php require_once('nav.php'); ?>
+
             <!-- Your form fields remain unchanged -->
+            <h1>Add Product</h1>
 
     <div class="container">
-        <h1>Add Product</h1>
         <form  method="post" enctype="multipart/form-data">
             <label for="product_name">Product Name:</label>
             <input type="text" id="product_name" name="product_name" required><br>
 
-            <label for="category_name">Category Name:</label>
-            <input type="text" id="category_name" name="category_name" required><br>
+            <!-- <label for="category_name">Category Name:</label>
+            <input type="text" id="category_name" name="category_name" required><br> -->
+
+                <label for="category_name">Category Name:</label>
+                <select class="form-control" id="category_name" name="category_name" required>
+                    <?php
+                    // Retrieve category names from your database and populate the options dynamically
+                    $servername = "localhost";
+                    $username = "root";
+                    $password = "";
+                    $database = "commerce_db";
+
+                    $conn = new mysqli($servername, $username, $password, $database);
+
+                    if ($conn->connect_error) {
+                        die("Connection failed: " . $conn->connect_error);
+                    }
+
+                    $category_result = $conn->query("SELECT category_name FROM category_tb");
+
+                    if ($category_result->num_rows > 0) {
+                        while ($row = $category_result->fetch_assoc()) {
+                            echo "<option value='{$row['category_name']}'>{$row['category_name']}</option>";
+                        }
+                    } else {
+                        echo "<option value='' disabled>No categories available</option>";
+                    }
+
+                    $conn->close();
+                    ?>
+                </select><br>
 
             <label for="product_price">Product Price:</label>
             <input type="number" step="0.01" id="product_price" name="product_price" required><br>

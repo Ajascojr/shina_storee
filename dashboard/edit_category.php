@@ -10,6 +10,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+
+
+
 if(isset($_POST['edit_category'])) {
     $oldCategory = $_POST['old_category'];
     $newCategory = $_POST['new_category'];
@@ -54,13 +57,13 @@ $conn->close();
         font-family: Arial, sans-serif;
         background-color: #f4f4f4;
         margin: 0;
-        padding: 20px;
+        /* padding: 20px; */
     }
 
     .container {
         max-width: 600px;
         margin: auto;
-        background-color: #fff;
+        /* background-color: #fff; */
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -120,6 +123,22 @@ $conn->close();
 </style>
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Your Commerce App</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="homepage.php">Home</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Edit Category <span class="sr-only">(current)</span></a>
+            </li>
+        </ul>
+    </div>
+</nav>
 
 <div class="container mt-5">
     <div class="card">

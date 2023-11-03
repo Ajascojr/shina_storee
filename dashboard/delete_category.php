@@ -9,6 +9,8 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
+
 ?>
 
 
@@ -97,7 +99,7 @@ $conn->close();
         .container {
             max-width: 600px;
             margin: auto;
-            background-color: #fff;
+            /* background-color: #fff; */
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -155,6 +157,7 @@ $conn->close();
         }
     </style>
 <body>
+<?php require_once('nav.php'); ?>
 
 <form action="" method="post">
     <h1>Delete Category</h1>

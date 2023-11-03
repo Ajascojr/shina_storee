@@ -12,48 +12,46 @@ if ($conn->connect_error) {
 }
 
 // Step 2: Fetch Products
-$sql = "SELECT * FROM product_tb";
+if(isset($_GET['category'])) {
+    $selectedCategory = $_GET['category'];
+    $sql = "SELECT * FROM product_tb WHERE category_id = $selectedCategory";
+} else {
+    $sql = "SELECT * FROM product_tb";
+}
+
 $result = $conn->query($sql);
 
 // Step 3: Display Products
 if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        // echo "<div class='product'>
-        //  <h2>{$row['product_name']}</h2>
-        //  <p>Category: {$row['category_name']}</p>
-        //  <p>Price: {$row['product_price']}</p>
-        //  <p>Price: {$row['former_price']}</p>
-        //  <p>Discount: {$row['product_discount']}</p>
-        //  <p>Stock Quantity: {$row['stock_quantity']}</p>
-        //  <p>Description: {$row['product_description']}</p>
-        //  <img src='{$row['product_image']}' alt='Product Image'>
-        //  </div>";
-        $nn = substr($row['product_name'], 0, 15);
-        $pp = number_format($row['product_price']);
-        $pp = number_format($row['product_price']);
+// ...
+while($row = $result->fetch_assoc()) {
+    $nn = substr($row['product_name'], 0, 15);
+    $pp = number_format($row['product_price']);
 
-        echo ' <div class="col-md-3 my-1 col-6 p-1">
-        <div class="card w-100 text-center">
-        <a href = "pdetails.php?id='.$row['id'].'"> 
-        <div class = "card-head w-100"> 
-             <img id="img-img" src = "'.$row['product_image'].'" role="img" width="100%" height="100%" class=" card-img-top w-100 object-fit-contain">
-             <div style="position: absolute; top: 10px; right: 10px; background-color: red; color: white; padding: 5px 10px; font-size: 16px; border-radius: 5px;">
-             -'.$row['product_discount'].'%
-         </div>
-        </div>
+    // echo '<div class="col-md-3 my-1 col-6 p-1">
+    echo '<div class="col-md-3 my-1 col-6 p-1" onmouseover="showAddToCartButton('.$row['id'].')" onmouseout="hideAddToCartButton('.$row['id'].')">
 
-      
-    
+            <div class="card w-100 text-center">
+                <a href="product_details.php?id='.$row['id'].'"> 
+                    <div class="card-head w-100"> 
+                        <img id="img-img" src="'.$row['product_image'].'" role="img" width="100%" height="100%" class="card-img-top w-100 object-fit-contain">
+                        <div style="position: absolute; top: 10px; right: 10px; background-color: red; color: white; padding: 5px 10px; font-size: 16px; border-radius: 5px;">
+                            -'.$row['product_discount'].'%
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-black">'.$nn.'...</h5>
+                        <h4 class="card-title text-black">₦'.$pp.'</h4>
+                    </div> 
+                </a>
+                </div> 
+                
+        </div>';
+}
+// ...
+// <button id="add-to-cart-button-'.$row['id'].'" class="btn btn-primary add-to-cart-button" onclick="addToCart('.$row['id'].')">Add to Cart</button>
 
-          <div class="card-body">
-            <h5 class="card-title text-black">'.$nn.'...</h5>
-            <h4 class="card-title text-black">₦'.$pp.'</h4>
-            
 
-          </div> </a>
-        </div>
-      </div> ';
-    }
 } else {
     echo " No products found.";
 }
@@ -61,14 +59,21 @@ if ($result->num_rows > 0) {
 // Step 4: Close the database connection
 $conn->close();
 ?>
+
 <style>
     #img-img{
         object-fit: cover;
     }
+
     a{
         text-decoration: none;
         color: black;
     }
+
+    .add-to-cart-button {
+        display: none;
+    }
+
     /* Style for the product container */
 /* .product {
     max-width: 300px;
@@ -96,6 +101,60 @@ $conn->close();
     border-radius: 5px;
 } */
 
+
+
 </style>
 <!-- <link rel="stylesheet" href="../dist/css/bootstrap.min.css"> -->
+<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
+
+<script>
+  function showAddToCartButton(productId) {
+        var addToCartButton = document.getElementById('add-to-cart-button-' + productId);
+        addToCartButton.style.display = 'block';
+    }
+
+    function hideAddToCartButton(productId) {
+        var addToCartButton = document.getElementById('add-to-cart-button-' + productId);
+        addToCartButton.style.display = 'none';
+    }
+
+
+    function addToCart(productId) {
+        // Assuming you have a function to handle adding items to the cart
+        // You can use AJAX to send the product ID to the server and update the cart
+        // Here's a simple example using fetch API
+        fetch('add_to_cart.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'product_id=' + productId,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Product added to cart!');
+            } else {
+                alert('Error adding product to cart: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
 
